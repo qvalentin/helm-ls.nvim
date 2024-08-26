@@ -95,8 +95,8 @@ local conceal_templates_with_hover = function()
   )
 
   -- Get the range of visible lines in the current window
-  local start_line = vim.fn.line("w0") - 1 -- Convert to 0-based index
-  local end_line = vim.fn.line("w$") - 1   -- Convert to 0-based index
+  local start_line = vim.fn.line("w0") - 1
+  local end_line = vim.fn.line("w$") - 1
 
   print("start_line: " .. start_line)
   print("end_line: " .. end_line)
