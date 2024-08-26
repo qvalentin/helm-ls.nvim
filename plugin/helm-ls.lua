@@ -10,9 +10,7 @@ vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI" }, {
     if vim.bo.filetype ~= "helm" then
       return
     end
-    print("Checking if LSP is ready", vim.lsp.buf.server_ready)
-    local clients = vim.lsp.get_clients()
-    print("Checking if LSP is ready", vim.tbl_isempty(clients))
+    local clients = vim.lsp.get_clients({ bufnr = vim.api.nvim_get_current_buf(), name = "helm_ls" })
     if vim.tbl_isempty(clients) then
       return
     end
