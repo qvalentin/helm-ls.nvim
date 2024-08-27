@@ -5,22 +5,17 @@ local lsp = vim.lsp
 local api = vim.api
 local ns_id = api.nvim_create_namespace("conceal_ns")
 
+local util = require("helm-ls.utils")
+
 -- Debounce timer
 local debounce_timer = nil
 
 -- Cache to store hover results
 local hover_cache = {}
 
--- Function to check if the cursor is on the same line as the node
-local function is_cursor_on_line(start_row)
-  local cursor_row = unpack(api.nvim_win_get_cursor(0))
-  return (cursor_row - 1) == start_row
-end
-
 -- Function to extract hover text from the LSP result
 local function extract_hover_text(contents)
   local markdown_lines = lsp.util.convert_input_to_markdown_lines(contents)
-  markdown_lines = lsp.util.trim_empty_lines(markdown_lines)
 
   if vim.tbl_isempty(markdown_lines) then
     return nil
@@ -98,14 +93,11 @@ local conceal_templates_with_hover = function()
   local start_line = vim.fn.line("w0") - 1
   local end_line = vim.fn.line("w$") - 1
 
-  print("start_line: " .. start_line)
-  print("end_line: " .. end_line)
-
   for _, match in query:iter_matches(root, bufnr, start_line, end_line) do
     for id, node in pairs(match) do
       local start_row, start_col, end_row, end_col = node:range()
 
-      if is_cursor_on_line(start_row) then
+      if util.is_cursor_on_line(start_row) then
         return
       end
 
@@ -121,7 +113,7 @@ local function debounce_conceal_templates_with_hover()
   end
   debounce_timer = vim.defer_fn(function()
     conceal_templates_with_hover()
-  end, 500) -- 200ms debounce time
+  end, 200) -- 200ms debounce time
 end
 
 -- Function to clear extmarks on the cursor's current line
@@ -132,6 +124,6 @@ local clear_extmark_if_cursor_on_line = function()
   api.nvim_buf_clear_namespace(bufnr, ns_id, cursor_row - 1, cursor_row)
 end
 
-M.conceal_templates_with_hover = conceal_templates_with_hover
+M.conceal_templates_with_hover = debounce_conceal_templates_with_hover
 M.clear_extmark_if_cursor_on_line = clear_extmark_if_cursor_on_line
 return M
