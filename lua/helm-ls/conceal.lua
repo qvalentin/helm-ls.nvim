@@ -69,6 +69,11 @@ local function apply_concealment(bufnr, start_row, start_col, end_row, end_col, 
       end
 
       hover_text = extract_hover_text(result.contents)
+
+      if not hover_text then
+        return
+      end
+
       hover_cache[original_text] = hover_text
 
       set_extmark(bufnr, start_row, start_col, end_row, end_col, hover_text, original_text)
