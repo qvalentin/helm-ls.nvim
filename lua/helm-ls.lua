@@ -9,7 +9,7 @@ local config = {
   indent_hints = {
     enabled = true,
     only_for_current_line = true,
-  }
+  },
 }
 
 ---@class MyModule
