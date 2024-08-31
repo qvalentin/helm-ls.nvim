@@ -71,7 +71,6 @@ local add_indent_hints = function()
     end_line = vim.fn.line("w$") - 1
   end
 
-
   vim.api.nvim_buf_clear_namespace(0, ns_id, start_line - 1, end_line + 2)
   for _, match in query:iter_matches(root, bufnr, start_line, end_line) do
     local new_line_indent = false

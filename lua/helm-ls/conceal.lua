@@ -111,7 +111,6 @@ local conceal_templates_with_hover = function()
   end
 end
 
-
 -- Function to clear extmarks on the cursor's current line
 local clear_extmark_if_cursor_on_line = function()
   local bufnr = api.nvim_get_current_buf()
