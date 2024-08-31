@@ -129,6 +129,12 @@ local clear_extmark_if_cursor_on_line = function()
   api.nvim_buf_clear_namespace(bufnr, ns_id, cursor_row - 1, cursor_row)
 end
 
+
+local function set_config(config)
+  M.config = config
+end
+
 M.conceal_templates_with_hover = debounce_conceal_templates_with_hover
 M.clear_extmark_if_cursor_on_line = clear_extmark_if_cursor_on_line
+M.set_config = set_config
 return M
