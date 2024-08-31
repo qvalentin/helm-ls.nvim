@@ -105,7 +105,6 @@ local function debounce_add_indent_hints()
 end
 
 local function set_config(config)
-  print("Setting config", config.only_for_current_line)
   M.config = config
 end
 

@@ -20,34 +20,15 @@ local M = {}
 ---@type Config
 M.config = config
 
--- Function to handle indent hints
-local function handle_indent_hints(indent_hints)
-  if M.config.indent_hints.enabled then
-    indent_hints.add_indent_hints()
-  end
-end
-
--- Function to handle conceal templates
-local function handle_conceal_templates(conceal)
-  if M.config.conceal_templates.enabled then
-    local clients = vim.lsp.get_clients({ bufnr = vim.api.nvim_get_current_buf(), name = "helm_ls" })
-    if vim.tbl_isempty(clients) then
-      return
-    end
-    conceal.conceal_templates_with_hover()
-    conceal.clear_extmark_if_cursor_on_line()
-  end
-end
-
 ---@param args Config?
 M.setup = function(args)
   -- Validate and merge configuration
   if args then
     if args.conceal_templates and type(args.conceal_templates) ~= "table" then
-      error("Invalid type for conceal_templates")
+      error("Helm-ls: Invalid type for conceal_templates in config")
     end
     if args.indent_hints and type(args.indent_hints) ~= "table" then
-      error("Invalid type for indent_hints")
+      error("Helm-ls: Invalid type for indent_hints in config")
     end
   end
 
@@ -66,6 +47,11 @@ M.setup = function(args)
     indent_hints.set_config(M.config.indent_hints)
   end
 
+  if not conceal and not indent_hints then
+    -- create no autocommand
+    return
+  end
+
   -- Create the autocommand group "ConcealWithLsp"
   local group_id = vim.api.nvim_create_augroup("ConcealWithLsp", { clear = true })
 
@@ -81,10 +67,10 @@ M.setup = function(args)
         return
       end
       if indent_hints then
-        handle_indent_hints(indent_hints)
+        indent_hints.add_indent_hints()
       end
       if conceal then
-        handle_conceal_templates(conceal)
+        conceal.update_conceal_templates()
       end
     end,
   })

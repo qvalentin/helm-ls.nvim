@@ -3,7 +3,7 @@ local M = {}
 
 local lsp = vim.lsp
 local api = vim.api
-local ns_id = api.nvim_create_namespace("conceal_ns")
+local ns_id = api.nvim_create_namespace("helm-ls-conceal")
 
 local util = require("helm-ls.utils")
 
@@ -111,15 +111,6 @@ local conceal_templates_with_hover = function()
   end
 end
 
--- Debounced function call
-local function debounce_conceal_templates_with_hover()
-  if debounce_timer then
-    debounce_timer:stop()
-  end
-  debounce_timer = vim.defer_fn(function()
-    conceal_templates_with_hover()
-  end, 200) -- 200ms debounce time
-end
 
 -- Function to clear extmarks on the cursor's current line
 local clear_extmark_if_cursor_on_line = function()
@@ -129,12 +120,29 @@ local clear_extmark_if_cursor_on_line = function()
   api.nvim_buf_clear_namespace(bufnr, ns_id, cursor_row - 1, cursor_row)
 end
 
+local function update_conceal_templates()
+  local clients = vim.lsp.get_clients({ bufnr = vim.api.nvim_get_current_buf(), name = "helm_ls" })
+  if vim.tbl_isempty(clients) then
+    return
+  end
+  conceal_templates_with_hover()
+  clear_extmark_if_cursor_on_line()
+end
+
+-- Debounced function call
+local function debounce_update_conceal_templates()
+  if debounce_timer then
+    debounce_timer:stop()
+  end
+  debounce_timer = vim.defer_fn(function()
+    update_conceal_templates()
+  end, 200) -- 200ms debounce time
+end
 
 local function set_config(config)
   M.config = config
 end
 
-M.conceal_templates_with_hover = debounce_conceal_templates_with_hover
-M.clear_extmark_if_cursor_on_line = clear_extmark_if_cursor_on_line
+M.update_conceal_templates = debounce_update_conceal_templates
 M.set_config = set_config
 return M
