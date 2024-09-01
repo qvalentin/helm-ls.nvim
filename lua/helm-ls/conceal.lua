@@ -98,15 +98,16 @@ local conceal_templates_with_hover = function()
   local start_line = vim.fn.line("w0") - 1
   local end_line = vim.fn.line("w$") - 1
 
-  for _, match in query:iter_matches(root, bufnr, start_line, end_line) do
-    for id, node in pairs(match) do
-      local start_row, start_col, end_row, end_col = node:range()
+  for _, match in query:iter_matches(root, bufnr, start_line, end_line, { all = true }) do
+    for _, nodes in pairs(match) do
+      local start_row, start_col = nodes[1]:range()
+      local _, _, end_row, end_col = nodes[#nodes]:range()
 
       if util.is_cursor_on_line(start_row) then
         return
       end
 
-      apply_concealment(bufnr, start_row, start_col, end_row, end_col, node)
+      apply_concealment(bufnr, start_row, start_col, end_row, end_col, nodes[1])
     end
   end
 end
@@ -120,7 +121,7 @@ local clear_extmark_if_cursor_on_line = function()
 end
 
 local function update_conceal_templates()
-  local clients = vim.lsp.get_clients({ bufnr = vim.api.nvim_get_current_buf(), name = "helm_ls" })
+  local clients = vim.lsp.get_clients({ bufnr = api.nvim_get_current_buf(), name = "helm_ls" })
   if vim.tbl_isempty(clients) then
     return
   end
