@@ -52,8 +52,12 @@ M.setup = function(args)
     return
   end
 
-  -- Create the autocommand group "ConcealWithLsp"
-  local group_id = vim.api.nvim_create_augroup("ConcealWithLsp", { clear = true })
+  local parsers = require("nvim-treesitter.parsers")
+  if not parsers.has_parser("helm") then
+    return
+  end
+
+  local group_id = vim.api.nvim_create_augroup("helm-ls.nvim", { clear = true })
 
   -- Define file patterns as constants
   local file_patterns = { "*.yaml", "*.yml", "*.helm", "*.tpl" }
