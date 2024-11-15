@@ -16,7 +16,6 @@ vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI" }, {
     if vim.tbl_isempty(clients) then
       return
     end
-    conceal.conceal_templates_with_hover()
-    conceal.clear_extmark_if_cursor_on_line()
+    conceal.update_conceal_templates()
   end,
 })
