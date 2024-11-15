@@ -5,9 +5,9 @@ vim.filetype.add({
     [".*/templates/.*%.txt"] = "helm",
     ["helmfile.*%.ya?ml"] = "helm",
     ["helmfile.*%.ya?ml.gotmpl"] = "helm",
-    ["values.*%.yaml"] = "yaml.helm-values",
+    -- ["values.*%.yaml"] = "yaml.helm-values",
   },
   filename = {
-    ["Chart.yaml"] = "yaml.helm-chartfile",
+    -- ["Chart.yaml"] = "yaml.helm-chartfile",
   },
 })
