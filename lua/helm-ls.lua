@@ -48,12 +48,16 @@ M.setup = function(args)
   end
 
   if not conceal and not indent_hints then
-    -- create no autocommand
+    -- create no autocommand as the features are disabled
     return
   end
 
-  local parsers = require("nvim-treesitter.parsers")
-  if not parsers.has_parser("helm") then
+  local hasparsers, parsers = pcall(require, "nvim-treesitter.parsers")
+  if not hasparsers or not parsers.has_parser("helm") then
+    vim.notify(
+      "Helm-ls.nvim: tree-sitter parser for helm not installed, some features will not work. Make sure you have nvim-treesitter and then install it with :TSInstall helm",
+      vim.log.levels.WARN
+    )
     return
   end
 
