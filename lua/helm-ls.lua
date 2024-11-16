@@ -3,7 +3,6 @@
 ---@class Config
 ---@field conceal_templates table
 ---@field indent_hints table
----@field opt string Your config option
 local config = {
   conceal_templates = {
     enabled = true,
