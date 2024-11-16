@@ -3,7 +3,6 @@
 ---@class Config
 ---@field conceal_templates table
 ---@field indent_hints table
----@field opt string Your config option
 local config = {
   conceal_templates = {
     enabled = true,
@@ -48,12 +47,20 @@ M.setup = function(args)
   end
 
   if not conceal and not indent_hints then
-    -- create no autocommand
+    -- create no autocommand as the features are disabled
     return
   end
 
-  -- Create the autocommand group "ConcealWithLsp"
-  local group_id = vim.api.nvim_create_augroup("ConcealWithLsp", { clear = true })
+  local hasparsers, parsers = pcall(require, "nvim-treesitter.parsers")
+  if not hasparsers or not parsers.has_parser("helm") then
+    vim.notify(
+      "Helm-ls.nvim: tree-sitter parser for helm not installed, some features will not work. Make sure you have nvim-treesitter and then install it with :TSInstall helm",
+      vim.log.levels.WARN
+    )
+    return
+  end
+
+  local group_id = vim.api.nvim_create_augroup("helm-ls.nvim", { clear = true })
 
   -- Define file patterns as constants
   local file_patterns = { "*.yaml", "*.yml", "*.helm", "*.tpl" }
