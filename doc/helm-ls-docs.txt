@@ -23,7 +23,7 @@ The plugin is in early development.
 
 FEATURES                       *helm-ls-docs-nvim-plugin-for-helm-ls-features*
 
-- Filetypes for Helm
+- Filetypes for Helm (including values.yaml files required for helm-ls)
 - experimental: Overwrite templates with their current values using virtual text
     (See |helm-ls-docs-demos|)
 - experimental: Show hints highlighting the effect of `nindent` and `indent`
