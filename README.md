@@ -15,7 +15,7 @@ The plugin is in early development.
 
 ## Installing
 
-### Using lazy
+### Using `lazy.nvim`
 
 ```lua
 {
