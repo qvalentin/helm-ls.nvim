@@ -27,7 +27,7 @@ The plugin is in early development.
 }
 ```
 
-If you are not using lazy make sure to call `require("helm-ls").setup()` in your lua config.
+If you are not using lazy make sure to call `require("helm-ls").setup()` in your Lua config.
 
 ### Requirements
 
