@@ -7,7 +7,7 @@ The plugin is in early development.
 
 ## Features
 
-- Filetypes for Helm (including values.yaml files required for helm-ls)
+- File types for Helm (including values.yaml files required for helm-ls)
 
 - experimental: Overwrite templates with their current values using virtual text (See [Demos](#demos))
 
