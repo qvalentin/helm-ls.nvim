@@ -85,6 +85,9 @@ end
 local conceal_templates_with_hover = function()
   local bufnr = api.nvim_get_current_buf()
   local parser = vim.treesitter.get_parser(bufnr, vim.bo.filetype)
+  if parser == nil then
+    return
+  end
   local root = parser:parse()[1]:root()
 
   local query = vim.treesitter.query.parse(
