@@ -1,4 +1,4 @@
-*helm-ls-docs.txt*        For Neovim >= 0.8.0        Last change: 2025 June 07
+*helm-ls-docs.txt*        For Neovim >= 0.8.0        Last change: 2025 June 25
 
 ==============================================================================
 Table of Contents                             *helm-ls-docs-table-of-contents*
@@ -13,17 +13,17 @@ Table of Contents                             *helm-ls-docs-table-of-contents*
 ==============================================================================
 1. Nvim plugin for helm-ls              *helm-ls-docs-nvim-plugin-for-helm-ls*
 
-A neovim lua plugin for Helm <https://helm.sh/> adding additional features
+A Neovim lua plugin for Helm <https://helm.sh/> adding additional features
 using helm-ls <https://github.com/mrjosh/helm-ls/>. The plugin can be used as
 an alternative to towolf/vim-helm <https://github.com/towolf/vim-helm> for
-neovim.
+Neovim.
 
 The plugin is in early development.
 
 
 FEATURES                       *helm-ls-docs-nvim-plugin-for-helm-ls-features*
 
-- Filetypes for Helm (including values.yaml files required for helm-ls)
+- File types for Helm (including values.yaml files required for helm-ls)
 - experimental: Overwrite templates with their current values using virtual text
     (See |helm-ls-docs-demos|)
 - experimental: Show hints highlighting the effect of `nindent` and `indent`
@@ -33,23 +33,23 @@ FEATURES                       *helm-ls-docs-nvim-plugin-for-helm-ls-features*
 INSTALLING                   *helm-ls-docs-nvim-plugin-for-helm-ls-installing*
 
 
-USING LAZY ~
+USING LAZY.NVIM ~
 
 >lua
     {
         "qvalentin/helm-ls.nvim",
         ft = "helm",
         opts = {
-            -- leave emtpy or see below
+            -- leave empty or see below
         },
     }
 <
 
-If you are not using lazy make sure to call `require("helm-ls").setup()` in
-your lua config.
+If you are not using lazy, make sure to call `require("helm-ls").setup()` in
+your Lua config.
 
 
-REQUIRMENTS ~
+REQUIREMENTS ~
 
 The plugin requires helm-ls <https://github.com/mrjosh/helm-ls> and the helm
 tree-sitter grammar for the additional features. Install the helm tree-sitter
