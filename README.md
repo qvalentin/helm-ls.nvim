@@ -22,14 +22,14 @@ The plugin is in early development.
     "qvalentin/helm-ls.nvim",
     ft = "helm",
     opts = {
-        -- leave emtpy or see below
+        -- leave empty or see below
     },
 }
 ```
 
 If you are not using lazy make sure to call `require("helm-ls").setup()` in your lua config.
 
-### Requirments
+### Requirements
 
 The plugin requires [helm-ls](https://github.com/mrjosh/helm-ls) and the helm tree-sitter grammar for the additional features.
 Install the helm tree-sitter grammar using `TSInstall` after installing the [nvim-treesitter plugin](https://github.com/nvim-treesitter/nvim-treesitter).
