@@ -1,7 +1,7 @@
 # Nvim plugin for helm-ls
 
-A neovim lua plugin for [Helm](https://helm.sh/) adding additional features using [helm-ls](https://github.com/mrjosh/helm-ls/).
-The plugin can be used as an alternative to [towolf/vim-helm](https://github.com/towolf/vim-helm) for neovim.
+A Neovim lua plugin for [Helm](https://helm.sh/) adding additional features using [helm-ls](https://github.com/mrjosh/helm-ls/).
+The plugin can be used as an alternative to [towolf/vim-helm](https://github.com/towolf/vim-helm) for Neovim.
 
 The plugin is in early development.
 
