@@ -1,13 +1,13 @@
 # Nvim plugin for helm-ls
 
-A neovim lua plugin for [Helm](https://helm.sh/) adding additional features using [helm-ls](https://github.com/mrjosh/helm-ls/).
-The plugin can be used as an alternative to [towolf/vim-helm](https://github.com/towolf/vim-helm) for neovim.
+A Neovim lua plugin for [Helm](https://helm.sh/) adding additional features using [helm-ls](https://github.com/mrjosh/helm-ls/).
+The plugin can be used as an alternative to [towolf/vim-helm](https://github.com/towolf/vim-helm) for Neovim.
 
 The plugin is in early development.
 
 ## Features
 
-- Filetypes for Helm (including values.yaml files required for helm-ls)
+- File types for Helm (including values.yaml files required for helm-ls)
 
 - experimental: Overwrite templates with their current values using virtual text (See [Demos](#demos))
 
@@ -15,21 +15,21 @@ The plugin is in early development.
 
 ## Installing
 
-### Using lazy
+### Using `lazy.nvim`
 
 ```lua
 {
     "qvalentin/helm-ls.nvim",
     ft = "helm",
     opts = {
-        -- leave emtpy or see below
+        -- leave empty or see below
     },
 }
 ```
 
-If you are not using lazy make sure to call `require("helm-ls").setup()` in your lua config.
+If you are not using lazy, make sure to call `require("helm-ls").setup()` in your Lua config.
 
-### Requirments
+### Requirements
 
 The plugin requires [helm-ls](https://github.com/mrjosh/helm-ls) and the helm tree-sitter grammar for the additional features.
 Install the helm tree-sitter grammar using `TSInstall` after installing the [nvim-treesitter plugin](https://github.com/nvim-treesitter/nvim-treesitter).
