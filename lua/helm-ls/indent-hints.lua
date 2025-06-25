@@ -50,6 +50,9 @@ end
 local add_indent_hints = function()
   local bufnr = vim.api.nvim_get_current_buf()
   local parser = vim.treesitter.get_parser(bufnr, vim.bo.filetype)
+  if parser == nil then
+    return
+  end
   local root = parser:parse()[1]:root()
 
   local query = vim.treesitter.query.parse(
@@ -72,22 +75,24 @@ local add_indent_hints = function()
   end
 
   vim.api.nvim_buf_clear_namespace(0, ns_id, math.max(start_line - 1, 0), end_line + 2)
-  for _, match in query:iter_matches(root, bufnr, start_line, end_line) do
+  for _, match in query:iter_matches(root, bufnr, start_line, end_line, { all = true }) do
     local new_line_indent = false
-    for id, node in pairs(match) do
+    for id, nodes in pairs(match) do
       local name = query.captures[id]
-      local node_content = vim.treesitter.get_node_text(node, bufnr)
-      if name == "args" then
-        -- parse original_text to int
-        local indent_count = tonumber(node_content)
-        if not indent_count then
-          return
-        end
+      for _, node in ipairs(nodes) do
+        local node_content = vim.treesitter.get_node_text(node, bufnr)
+        if name == "args" then
+          -- parse original_text to int
+          local indent_count = tonumber(node_content)
+          if not indent_count then
+            return
+          end
 
-        local start_row = node:range()
-        show_hint(start_row + (new_line_indent and 1 or 0), indent_count)
-      elseif name == "func" then
-        new_line_indent = node_content == "nindent"
+          local start_row = node:range()
+          show_hint(start_row + (new_line_indent and 1 or 0), indent_count)
+        elseif name == "func" then
+          new_line_indent = node_content == "nindent"
+        end
       end
     end
   end
