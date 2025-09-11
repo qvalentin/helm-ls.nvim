@@ -51,8 +51,7 @@ M.setup = function(args)
     return
   end
 
-  local hasparsers, parsers = pcall(require, "nvim-treesitter.parsers")
-  if not hasparsers or not parsers.has_parser("helm") then
+  if not vim.treesitter.language.add("helm") then
     vim.notify(
       "Helm-ls.nvim: tree-sitter parser for helm not installed, some features will not work. Make sure you have nvim-treesitter and then install it with :TSInstall helm",
       vim.log.levels.WARN
