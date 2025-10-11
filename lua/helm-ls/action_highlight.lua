@@ -1,6 +1,8 @@
 ---@class ActionHighlightModule
 local M = {}
 
+local queries = require("helm-ls.queries")
+
 local ns_id = vim.api.nvim_create_namespace("helm-ls-action-highlight")
 
 local function highlight_node(bufnr, node)
@@ -29,15 +31,7 @@ local function highlight_keywords()
   -- Clear previous highlights first
   vim.api.nvim_buf_clear_namespace(bufnr, ns_id, 0, -1)
 
-  local query_str = [[
-    [
-      (range_action "range" @start  "end" @end)
-      (if_action "if" @start  "end" @end)
-      (with_action "with" @start "end" @end)
-    ] @action
-  ]]
-
-  local query = vim.treesitter.query.parse("helm", query_str)
+  local query = vim.treesitter.query.parse("helm", queries.action_block)
   if not query then
     return
   end
@@ -46,6 +40,7 @@ local function highlight_keywords()
   for _, match in query:iter_matches(root, bufnr) do
     local action_node
     local start_node
+    local middle_node
     local end_node
 
     for id, nodes in pairs(match) do
@@ -54,6 +49,8 @@ local function highlight_keywords()
         action_node = nodes[1]
       elseif capture_name == "start" then
         start_node = nodes[1]
+      elseif capture_name == "middle" then
+        middle_node = nodes[1]
       elseif capture_name == "end" then
         end_node = nodes[1]
       end
@@ -62,14 +59,15 @@ local function highlight_keywords()
     if action_node and start_node and end_node then
       local start_row, start_col, end_row, end_col = action_node:range()
 
-      -- Check if cursor is within the action block's row range
       if cursor_row >= start_row and cursor_row <= end_row then
-        -- Additional check for columns on the start and end lines to be more precise
         if (cursor_row == start_row and cursor_col < start_col) or (cursor_row == end_row and cursor_col > end_col) then
           -- Cursor is outside the node on the same line, so we continue searching for a parent block
         else
           -- Cursor is inside the block, highlight the keywords and stop.
           highlight_node(bufnr, start_node)
+          if middle_node then
+            highlight_node(bufnr, middle_node)
+          end
           highlight_node(bufnr, end_node)
           return
         end

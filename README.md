@@ -8,10 +8,16 @@ The plugin is in early development.
 ## Features
 
 - File types for Helm (including values.yaml files required for helm-ls)
-
+- Highlight the current block (`if`, `with`, `range`)
+- Jump between the start and end of a block with `%`
 - experimental: Overwrite templates with their current values using virtual text (See [Demos](#demos))
-
 - experimental: Show hints highlighting the effect of `nindent` and `indent` functions (See [Demos](#demos))
+
+## Keymaps
+
+The plugin adds the following keymaps for helm files:
+
+- `%`: Jump between the start and end of a block (`if`, `with`, `range`)
 
 ## Installing
 
@@ -53,6 +59,10 @@ Default config:
     enabled = true,
     -- show the hints only for the line the cursor is on
     only_for_current_line = true,
+  },
+  action_highlight = {
+    -- enable highlighting of the current block
+    enabled = true,
   },
 }
 ```
