@@ -75,7 +75,7 @@ M.setup = function(args)
   local group_id = vim.api.nvim_create_augroup("helm-ls.nvim", { clear = true })
 
   -- Define file patterns as constants
-  local file_patterns = { "*.yaml", "*.yml", "*.helm", "*.tpl" }
+  local file_patterns = { "*.yaml", "*.yml", "*.helm", "*.tpl", "NOTES.txt" }
 
   -- Define the autocommand
   vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI" }, {

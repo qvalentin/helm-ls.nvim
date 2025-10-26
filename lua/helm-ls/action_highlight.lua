@@ -11,7 +11,7 @@ local function highlight_node(bufnr, node)
   end
   local start_row, start_col, end_row, end_col = node:range()
   vim.api.nvim_buf_set_extmark(bufnr, ns_id, start_row, start_col, {
-    end_line = end_row,
+    end_row = end_row,
     end_col = end_col,
     hl_group = "Visual",
   })
@@ -19,59 +19,57 @@ end
 
 local function highlight_keywords()
   local bufnr = vim.api.nvim_get_current_buf()
+  vim.api.nvim_buf_clear_namespace(bufnr, ns_id, 0, -1)
+
   local parser = vim.treesitter.get_parser(bufnr, "helm")
   if not parser then
     return
   end
 
-  local root = parser:parse()[1]:root()
-  local cursor_row, cursor_col = unpack(vim.api.nvim_win_get_cursor(0))
-  cursor_row = cursor_row - 1 -- 0-indexed
+  -- Make sure tree is parsed. parse() is idempotent.
+  parser:parse()
 
-  -- Clear previous highlights first
-  vim.api.nvim_buf_clear_namespace(bufnr, ns_id, 0, -1)
-
-  local query = vim.treesitter.query.parse("helm", queries.action_block)
-  if not query then
+  local cursor_node = vim.treesitter.get_node({ bufnr = bufnr, include_anonymous = true })
+  if not cursor_node then
     return
   end
 
-  -- Iterate over all matches, from innermost to outermost
-  for _, match in query:iter_matches(root, bufnr) do
-    local action_node
-    local start_node
-    local middle_node
-    local end_node
+  -- 1. Find the containing action node by traversing up from cursor
+  local action_node
+  local current_node = cursor_node
+  local action_types = { "range_action", "if_action", "with_action", "define_action", "block_action" }
+  while current_node do
+    if vim.tbl_contains(action_types, current_node:type()) then
+      action_node = current_node
+      break
+    end
+    current_node = current_node:parent()
+  end
 
-    for id, nodes in pairs(match) do
-      local capture_name = query.captures[id]
-      if capture_name == "action" then
-        action_node = nodes[1]
-      elseif capture_name == "start" then
-        start_node = nodes[1]
-      elseif capture_name == "middle" then
-        middle_node = nodes[1]
-      elseif capture_name == "end" then
-        end_node = nodes[1]
+  if not action_node then
+    return -- No action found at cursor
+  end
+
+  -- 2. Find parts within that action node and highlight them
+  local parts_query = vim.treesitter.query.parse("helm", queries.action_parts)
+  if not parts_query then
+    return
+  end
+
+  for id, node_to_highlight in parts_query:iter_captures(action_node, bufnr) do
+    local is_nested = false
+    local parent = node_to_highlight:parent()
+    -- Check if the capture is inside a nested action block
+    while parent and parent:id() ~= action_node:id() do
+      if vim.tbl_contains(action_types, parent:type()) then
+        is_nested = true
+        break
       end
+      parent = parent:parent()
     end
 
-    if action_node and start_node and end_node then
-      local start_row, start_col, end_row, end_col = action_node:range()
-
-      if cursor_row >= start_row and cursor_row <= end_row then
-        if (cursor_row == start_row and cursor_col < start_col) or (cursor_row == end_row and cursor_col > end_col) then
-          -- Cursor is outside the node on the same line, so we continue searching for a parent block
-        else
-          -- Cursor is inside the block, highlight the keywords and stop.
-          highlight_node(bufnr, start_node)
-          if middle_node then
-            highlight_node(bufnr, middle_node)
-          end
-          highlight_node(bufnr, end_node)
-          return
-        end
-      end
+    if not is_nested then
+      highlight_node(bufnr, node_to_highlight)
     end
   end
 end
