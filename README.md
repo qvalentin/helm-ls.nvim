@@ -8,7 +8,7 @@ The plugin is in early development.
 ## Features
 
 - File types for Helm (including values.yaml files required for helm-ls)
-- Highlight the current block (`if`, `with`, `range`)
+- Highlight the current block (`if`, `with`, `range`, etc.)
 - Jump between the start and end of a block with `%`
 - experimental: Overwrite templates with their current values using virtual text (See [Demos](#demos))
 - experimental: Show hints highlighting the effect of `nindent` and `indent` functions (See [Demos](#demos))
