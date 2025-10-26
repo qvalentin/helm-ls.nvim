@@ -52,7 +52,8 @@ function M.jump_to_matching_keyword()
   local start_nodes, middle_nodes, end_nodes = {}, {}, {}
   local cursor_on_node, cursor_on_node_type
 
-  for id, node in parts_query:iter_captures(action_node, bufnr) do
+  local start_row, _, end_row, _ = action_node:range()
+  for id, node in parts_query:iter_captures(action_node, bufnr, start_row, end_row + 1) do
     local is_nested = false
     local parent = node:parent()
     while parent and parent:id() ~= action_node:id() do
@@ -84,9 +85,14 @@ function M.jump_to_matching_keyword()
   end
 
   -- Sort nodes by position
-  table.sort(start_nodes, function(a, b) return a:start() < b:start() end)
-  table.sort(middle_nodes, function(a, b) return a:start() < b:start() end)
-  table.sort(end_nodes, function(a, b) return a:start() < b:start() end)
+  local function by_pos(a, b)
+    local ar, ac = a:start()
+    local br, bc = b:start()
+    return ar == br and ac < bc or ar < br
+  end
+  table.sort(start_nodes, by_pos)
+  table.sort(middle_nodes, by_pos)
+  table.sort(end_nodes, by_pos)
 
   -- 3. Jump based on the type of node under the cursor
   local function jump_to(node)
