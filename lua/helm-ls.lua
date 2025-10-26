@@ -55,7 +55,7 @@ M.setup = function(args)
   end
 
   if M.config.action_highlight.enabled then
-    action_highlight = require("helm-ls.action_highlight")
+    action_highlight = require("helm-ls.action-highlight")
     action_highlight.setup(M.config.action_highlight)
   end
 

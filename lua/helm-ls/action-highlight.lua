@@ -56,7 +56,11 @@ local function highlight_keywords()
     return
   end
 
-  for id, node_to_highlight in parts_query:iter_captures(action_node, bufnr) do
+  -- Get the visible range of lines in the current window
+  local start_line = vim.fn.line("w0") - 1
+  local end_line = vim.fn.line("w$") - 1
+
+  for id, node_to_highlight in parts_query:iter_captures(action_node, bufnr, start_line, end_line) do
     local is_nested = false
     local parent = node_to_highlight:parent()
     -- Check if the capture is inside a nested action block

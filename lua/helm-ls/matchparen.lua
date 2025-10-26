@@ -27,7 +27,7 @@ function M.jump_to_matching_keyword()
     return false
   end
 
-  -- 1. Find the containing action node by traversing up from cursor
+  -- 1. Find the containing action node
   local action_node
   local current_node = cursor_node
   local action_types = { "range_action", "if_action", "with_action", "define_action", "block_action" }
@@ -43,14 +43,14 @@ function M.jump_to_matching_keyword()
     return false
   end
 
-  -- 2. Get all parts, filter nested, and identify node under cursor
+  -- 2. Collect parts and identify node under cursor in a single pass
   local parts_query = vim.treesitter.query.parse("helm", queries.action_parts)
   if not parts_query then
     return false
   end
 
   local start_nodes, middle_nodes, end_nodes = {}, {}, {}
-  local cursor_on_node
+  local cursor_on_node, cursor_on_node_type
 
   for id, node in parts_query:iter_captures(action_node, bufnr) do
     local is_nested = false
@@ -64,10 +64,11 @@ function M.jump_to_matching_keyword()
     end
 
     if not is_nested then
+      local capture_name = parts_query.captures[id]
       if is_cursor_on_node(cursor_row, cursor_col, node) then
         cursor_on_node = node
+        cursor_on_node_type = capture_name
       end
-      local capture_name = parts_query.captures[id]
       if capture_name == "start" then
         table.insert(start_nodes, node)
       elseif capture_name == "middle" then
@@ -87,42 +88,27 @@ function M.jump_to_matching_keyword()
   table.sort(middle_nodes, function(a, b) return a:start() < b:start() end)
   table.sort(end_nodes, function(a, b) return a:start() < b:start() end)
 
-  -- 3. Find which list the cursor_on_node is in and jump
+  -- 3. Jump based on the type of node under the cursor
   local function jump_to(node)
+    if not node then
+      return false
+    end
     local r, c = node:start()
     vim.api.nvim_win_set_cursor(0, { r + 1, c })
     return true
   end
 
-  for i, node in ipairs(start_nodes) do
-    if node:id() == cursor_on_node:id() then
-      if #middle_nodes > 0 then
-        return jump_to(middle_nodes[1])
-      elseif #end_nodes > 0 then
-        return jump_to(end_nodes[1])
+  if cursor_on_node_type == "start" then
+    return jump_to(middle_nodes[1]) or jump_to(end_nodes[1])
+  elseif cursor_on_node_type == "middle" then
+    -- To find the next middle node, we must find the index of the current one
+    for i, node in ipairs(middle_nodes) do
+      if node:id() == cursor_on_node:id() then
+        return jump_to(middle_nodes[i + 1]) or jump_to(end_nodes[1])
       end
-      return false
     end
-  end
-
-  for i, node in ipairs(middle_nodes) do
-    if node:id() == cursor_on_node:id() then
-      if i + 1 <= #middle_nodes then
-        return jump_to(middle_nodes[i + 1])
-      elseif #end_nodes > 0 then
-        return jump_to(end_nodes[1])
-      end
-      return false
-    end
-  end
-
-  for i, node in ipairs(end_nodes) do
-    if node:id() == cursor_on_node:id() then
-      if #start_nodes > 0 then
-        return jump_to(start_nodes[1])
-      end
-      return false
-    end
+  elseif cursor_on_node_type == "end" then
+    return jump_to(start_nodes[1])
   end
 
   return false
