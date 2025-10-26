@@ -1,10 +1,11 @@
-*helm-ls-docs.txt*      For Neovim >= 0.8.0     Last change: 2025 September 11
+*helm-ls-docs.txt*       For Neovim >= 0.8.0      Last change: 2025 October 26
 
 ==============================================================================
 Table of Contents                             *helm-ls-docs-table-of-contents*
 
 1. Nvim plugin for helm-ls              |helm-ls-docs-nvim-plugin-for-helm-ls|
   - Features                   |helm-ls-docs-nvim-plugin-for-helm-ls-features|
+  - Keymaps                     |helm-ls-docs-nvim-plugin-for-helm-ls-keymaps|
   - Installing               |helm-ls-docs-nvim-plugin-for-helm-ls-installing|
   - Configuration         |helm-ls-docs-nvim-plugin-for-helm-ls-configuration|
   - Demos                         |helm-ls-docs-nvim-plugin-for-helm-ls-demos|
@@ -24,10 +25,17 @@ The plugin is in early development.
 FEATURES                       *helm-ls-docs-nvim-plugin-for-helm-ls-features*
 
 - File types for Helm (including values.yaml files required for helm-ls)
-- experimental: Overwrite templates with their current values using virtual text
-    (See |helm-ls-docs-demos|)
-- experimental: Show hints highlighting the effect of `nindent` and `indent`
-    functions (See |helm-ls-docs-demos|)
+- Highlight the current block (`if`, `with`, `range`, etc.)
+- Jump between the start and end of a block with `%`
+- experimental: Overwrite templates with their current values using virtual text (See |helm-ls-docs-demos|)
+- experimental: Show hints highlighting the effect of `nindent` and `indent` functions (See |helm-ls-docs-demos|)
+
+
+KEYMAPS                         *helm-ls-docs-nvim-plugin-for-helm-ls-keymaps*
+
+The plugin adds the following keymaps for helm files:
+
+- `%`: Jump between the start and end of a block (`if`, `with`, `range`)
 
 
 INSTALLING                   *helm-ls-docs-nvim-plugin-for-helm-ls-installing*
@@ -76,6 +84,10 @@ Default config:
         enabled = true,
         -- show the hints only for the line the cursor is on
         only_for_current_line = true,
+      },
+      action_highlight = {
+        -- enable highlighting of the current block
+        enabled = true,
       },
     }
 <
