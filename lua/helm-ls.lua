@@ -3,6 +3,7 @@
 ---@class Config
 ---@field conceal_templates table
 ---@field indent_hints table
+---@field action_highlight table
 local config = {
   conceal_templates = {
     enabled = true,
@@ -10,6 +11,9 @@ local config = {
   indent_hints = {
     enabled = true,
     only_for_current_line = true,
+  },
+  action_highlight = {
+    enabled = true,
   },
 }
 
@@ -29,12 +33,16 @@ M.setup = function(args)
     if args.indent_hints and type(args.indent_hints) ~= "table" then
       error("Helm-ls: Invalid type for indent_hints in config")
     end
+    if args.action_highlight and type(args.action_highlight) ~= "table" then
+      error("Helm-ls: Invalid type for action_highlight in config")
+    end
   end
 
   M.config = vim.tbl_deep_extend("force", M.config, args or {})
 
   local conceal = nil
   local indent_hints = nil
+  local action_highlight = nil
 
   if M.config.conceal_templates.enabled then
     conceal = require("helm-ls.conceal")
@@ -46,7 +54,12 @@ M.setup = function(args)
     indent_hints.set_config(M.config.indent_hints)
   end
 
-  if not conceal and not indent_hints then
+  if M.config.action_highlight.enabled then
+    action_highlight = require("helm-ls.action-highlight")
+    action_highlight.setup(M.config.action_highlight)
+  end
+
+  if not conceal and not indent_hints and not action_highlight then
     -- create no autocommand as the features are disabled
     return
   end
@@ -62,7 +75,7 @@ M.setup = function(args)
   local group_id = vim.api.nvim_create_augroup("helm-ls.nvim", { clear = true })
 
   -- Define file patterns as constants
-  local file_patterns = { "*.yaml", "*.yml", "*.helm", "*.tpl" }
+  local file_patterns = { "*.yaml", "*.yml", "*.helm", "*.tpl", "NOTES.txt" }
 
   -- Define the autocommand
   vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI" }, {
@@ -77,6 +90,9 @@ M.setup = function(args)
       end
       if conceal then
         conceal.update_conceal_templates()
+      end
+      if action_highlight then
+        action_highlight.highlight_current_block()
       end
     end,
   })
