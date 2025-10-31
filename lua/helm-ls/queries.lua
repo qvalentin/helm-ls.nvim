@@ -6,7 +6,7 @@ M.action_parts = [[
   ("with" @start)
   ("define" @start)
   ("block" @start)
-  (["else" "else if"] @middle)
+  ("else" @middle)
   ("end" @end)
 ]]
 
