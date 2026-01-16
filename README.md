@@ -11,6 +11,7 @@ The plugin is in early development.
 - Highlight the current block (`if`, `with`, `range`, etc.)
 - Jump between the start and end of a block with `%`
 - experimental: Overwrite templates with their current values using virtual text (See [Demos](#demos))
+  - Note: Setting `vim.opt.conceallevel = 2` is recommended for correct handling of wrapped lines.
 - experimental: Show hints highlighting the effect of `nindent` and `indent` functions (See [Demos](#demos))
 
 ## Keymaps
@@ -52,6 +53,7 @@ Default config:
 {
   conceal_templates = {
     -- enable the replacement of templates with virtual text of their current values
+    -- note: for better wrapping support, set `vim.opt.conceallevel = 2`
     enabled = true, -- this might change to false in the future
   },
   indent_hints = {

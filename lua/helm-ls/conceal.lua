@@ -42,17 +42,34 @@ end
 
 -- Helper function to set an extmark with the hover result
 local function set_extmark(bufnr, start_row, start_col, end_row, end_col, hover_text, original_text)
-  hover_text = pad_text(hover_text, #original_text)
+  local conceallevel = vim.opt_local.conceallevel:get()
+  -- Use a stable ID based on position to avoid duplicates
+  local id = start_row * 10000 + start_col + 1
 
-  -- Set conceal for the syntax element
-  api.nvim_buf_set_extmark(bufnr, ns_id, start_row, start_col, {
-    end_row = end_row,
-    end_col = end_col,
-    virt_text = { { hover_text, "Conceal" } },
-    virt_text_pos = "overlay",
-    hl_mode = "blend",
-    virt_text_hide = true,
-  })
+  if conceallevel > 0 then
+    -- Set conceal for the syntax element (new approach, handles wrapping)
+    api.nvim_buf_set_extmark(bufnr, ns_id, start_row, start_col, {
+      id = id,
+      end_row = end_row,
+      end_col = end_col,
+      virt_text = { { hover_text, "Conceal" } },
+      virt_text_pos = "inline",
+      conceal = "",
+    })
+  else
+    -- Fallback for conceallevel = 0 (original approach, has issues with wrapping)
+    hover_text = pad_text(hover_text, #original_text)
+
+    api.nvim_buf_set_extmark(bufnr, ns_id, start_row, start_col, {
+      id = id,
+      end_row = end_row,
+      end_col = end_col,
+      virt_text = { { hover_text, "Conceal" } },
+      virt_text_pos = "overlay",
+      hl_mode = "blend",
+      virt_text_hide = true,
+    })
+  end
 end
 
 -- Function to handle LSP hover requests and apply concealment
@@ -76,7 +93,11 @@ local function apply_concealment(bufnr, start_row, start_col, end_row, end_col, 
 
       hover_cache[original_text] = hover_text
 
-      set_extmark(bufnr, start_row, start_col, end_row, end_col, hover_text, original_text)
+      -- Re-verify we are still on the same buffer/context if needed,
+      -- but for now, applying if buffer is still active
+      if api.nvim_buf_is_valid(bufnr) then
+        set_extmark(bufnr, start_row, start_col, end_row, end_col, hover_text, original_text)
+      end
     end)
   end
 end
@@ -101,20 +122,24 @@ local conceal_templates_with_hover = function()
   local start_line = vim.fn.line("w0") - 1
   local end_line = vim.fn.line("w$") - 1
 
+  -- Clear existing extmarks in the visible range to avoid duplication
+  -- and handle deleted/moved templates
+  api.nvim_buf_clear_namespace(bufnr, ns_id, start_line, end_line + 1)
+
   for _, match in query:iter_matches(root, bufnr, start_line, end_line, { all = true }) do
     for _, nodes in pairs(match) do
       local start_row, start_col = nodes[1]:range()
       local _, _, end_row, end_col = nodes[#nodes]:range()
 
       if util.is_cursor_on_line(start_row) then
-        return
+        goto continue
       end
 
       apply_concealment(bufnr, start_row, start_col, end_row, end_col, nodes[1])
+      ::continue::
     end
   end
 end
-
 -- Function to clear extmarks on the cursor's current line
 local clear_extmark_if_cursor_on_line = function()
   local bufnr = api.nvim_get_current_buf()
@@ -128,6 +153,7 @@ local function update_conceal_templates()
   if vim.tbl_isempty(clients) then
     return
   end
+
   conceal_templates_with_hover()
   clear_extmark_if_cursor_on_line()
 end
