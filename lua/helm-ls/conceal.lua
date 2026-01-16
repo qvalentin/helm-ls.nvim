@@ -80,7 +80,7 @@ local function apply_concealment(bufnr, start_row, start_col, end_row, end_col, 
   if hover_text then
     set_extmark(bufnr, start_row, start_col, end_row, end_col, hover_text, original_text)
   else
-    request_hover(bufnr, end_row, end_col - 1, function(err, result, ctx, _) 
+    request_hover(bufnr, end_row, end_col - 1, function(err, result, ctx, _)
       if err or not result or not result.contents then
         return
       end
@@ -93,7 +93,7 @@ local function apply_concealment(bufnr, start_row, start_col, end_row, end_col, 
 
       hover_cache[original_text] = hover_text
 
-      -- Re-verify we are still on the same buffer/context if needed, 
+      -- Re-verify we are still on the same buffer/context if needed,
       -- but for now, applying if buffer is still active
       if api.nvim_buf_is_valid(bufnr) then
         set_extmark(bufnr, start_row, start_col, end_row, end_col, hover_text, original_text)
@@ -103,7 +103,7 @@ local function apply_concealment(bufnr, start_row, start_col, end_row, end_col, 
 end
 
 -- Main function to conceal templates with hover
-local conceal_templates_with_hover = function() 
+local conceal_templates_with_hover = function()
   local bufnr = api.nvim_get_current_buf()
   local parser = vim.treesitter.get_parser(bufnr, vim.bo.filetype)
   if parser == nil then
@@ -122,7 +122,7 @@ local conceal_templates_with_hover = function()
   local start_line = vim.fn.line("w0") - 1
   local end_line = vim.fn.line("w$") - 1
 
-  -- Clear existing extmarks in the visible range to avoid duplication 
+  -- Clear existing extmarks in the visible range to avoid duplication
   -- and handle deleted/moved templates
   api.nvim_buf_clear_namespace(bufnr, ns_id, start_line, end_line + 1)
 
