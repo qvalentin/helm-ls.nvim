@@ -1,4 +1,4 @@
-*helm-ls-docs.txt*       For Neovim >= 0.8.0      Last change: 2025 October 31
+*helm-ls-docs.txt*       For Neovim >= 0.8.0      Last change: 2026 January 16
 
 ==============================================================================
 Table of Contents                             *helm-ls-docs-table-of-contents*
@@ -28,6 +28,7 @@ FEATURES                       *helm-ls-docs-nvim-plugin-for-helm-ls-features*
 - Highlight the current block (`if`, `with`, `range`, etc.)
 - Jump between the start and end of a block with `%`
 - experimental: Overwrite templates with their current values using virtual text (See |helm-ls-docs-demos|)
+    - Note: Setting `vim.opt.conceallevel = 2` is recommended for correct handling of wrapped lines.
 - experimental: Show hints highlighting the effect of `nindent` and `indent` functions (See |helm-ls-docs-demos|)
 
 
@@ -77,6 +78,7 @@ Default config:
     {
       conceal_templates = {
         -- enable the replacement of templates with virtual text of their current values
+        -- note: for better wrapping support, set `vim.opt.conceallevel = 2`
         enabled = true, -- this might change to false in the future
       },
       indent_hints = {
