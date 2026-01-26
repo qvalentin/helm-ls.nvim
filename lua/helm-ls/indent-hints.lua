@@ -49,7 +49,7 @@ end
 
 local add_indent_hints = function()
   local bufnr = vim.api.nvim_get_current_buf()
-  local parser = vim.treesitter.get_parser(bufnr, vim.bo.filetype)
+  local parser = vim.treesitter.get_parser(bufnr, vim.bo.filetype, { error = false })
   if parser == nil then
     return
   end
