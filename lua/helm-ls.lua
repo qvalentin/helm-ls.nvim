@@ -11,6 +11,10 @@ local config = {
   indent_hints = {
     enabled = true,
     only_for_current_line = true,
+    hint_on_same_line = false,
+    hl_group = nil,
+    hl_link = nil,
+    hl_bg = nil,
   },
   action_highlight = {
     enabled = true,
@@ -40,29 +44,9 @@ M.setup = function(args)
 
   M.config = vim.tbl_deep_extend("force", M.config, args or {})
 
-  local conceal = nil
-  local indent_hints = nil
-  local action_highlight = nil
-
-  if M.config.conceal_templates.enabled then
-    conceal = require("helm-ls.conceal")
-    conceal.set_config(M.config.conceal_templates)
-  end
-
-  if M.config.indent_hints.enabled then
-    indent_hints = require("helm-ls.indent-hints")
-    indent_hints.set_config(M.config.indent_hints)
-  end
-
-  if M.config.action_highlight.enabled then
-    action_highlight = require("helm-ls.action-highlight")
-    action_highlight.setup(M.config.action_highlight)
-  end
-
-  if not conceal and not indent_hints and not action_highlight then
-    -- create no autocommand as the features are disabled
-    return
-  end
+  require("helm-ls.conceal").set_config(M.config.conceal_templates)
+  require("helm-ls.indent-hints").set_config(M.config.indent_hints)
+  require("helm-ls.action-highlight").setup(M.config.action_highlight)
 
   if not vim.treesitter.language.add("helm") then
     vim.notify(
@@ -85,17 +69,47 @@ M.setup = function(args)
       if vim.bo.filetype ~= "helm" then
         return
       end
-      if indent_hints then
-        indent_hints.add_indent_hints()
+      if M.config.indent_hints.enabled then
+        require("helm-ls.indent-hints").add_indent_hints()
       end
-      if conceal then
-        conceal.update_conceal_templates()
+      if M.config.conceal_templates.enabled then
+        require("helm-ls.conceal").update_conceal_templates()
       end
-      if action_highlight then
-        action_highlight.highlight_current_block()
+      if M.config.action_highlight.enabled then
+        require("helm-ls.action-highlight").highlight_current_block()
       end
     end,
   })
+end
+
+-- Namespaces each feature draws in
+local feature_namespaces = {
+  indent_hints = "helm-ls-indent-hints",
+  conceal_templates = "helm-ls-conceal",
+  action_highlight = "helm-ls-action-highlight",
+}
+
+-- Toggle a feature on/off. Returns the new state.
+---@param feature "indent_hints" | "conceal_templates" | "action_highlight"
+---@return boolean|nil enabled
+M.toggle = function(feature)
+  local cfg = M.config[feature]
+  if type(cfg) ~= "table" or cfg.enabled == nil then
+    vim.notify(("helm-ls: unknown feature %q"):format(feature), vim.log.levels.ERROR)
+    return
+  end
+
+  cfg.enabled = not cfg.enabled
+  if not cfg.enabled then
+    -- wipe the displayed feature in all buffers
+    local ns_id = vim.api.nvim_create_namespace(feature_namespaces[feature])
+    for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+      vim.api.nvim_buf_clear_namespace(buf, ns_id, 0, -1)
+    end
+  end
+
+  vim.notify(("helm-ls: %s %s"):format(feature, cfg.enabled and "enabled" or "disabled"))
+  return cfg.enabled
 end
 
 return M

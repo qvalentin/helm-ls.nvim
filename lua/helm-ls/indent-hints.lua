@@ -42,12 +42,37 @@ local function replace_indentation_with_marker(bufnr, line, indent_count)
 end
 
 local show_hint = function(row, indent_count)
-  vim.api.nvim_buf_add_highlight(0, ns_id, "Underlined", row, 0, indent_count)
+  local hl_group = M.config and M.config.hl_group
 
-  replace_indentation_with_marker(0, row, indent_count)
+  if not hl_group then
+    vim.api.nvim_buf_add_highlight(0, ns_id, "Underlined", row, 0, indent_count)
+    replace_indentation_with_marker(0, row, indent_count)
+    return
+  end
+
+  vim.api.nvim_buf_add_highlight(0, ns_id, hl_group, row, 0, indent_count)
+  local line_content = vim.api.nvim_buf_get_lines(0, row, row + 1, false)[1]
+  if line_content == nil or #line_content == 0 then
+    vim.api.nvim_buf_set_extmark(0, ns_id, row, 0, {
+      virt_text = { { string.rep(" ", indent_count), hl_group } },
+      virt_text_pos = "overlay",
+      hl_mode = "combine",
+      virt_text_hide = true,
+    })
+  end
 end
 
 local add_indent_hints = function()
+  local conf = M.config or {}
+
+  if conf.hl_group and conf.hl_link then
+    vim.api.nvim_set_hl(0, conf.hl_group, { link = conf.hl_link })
+  elseif conf.hl_group and conf.hl_bg then
+    vim.api.nvim_set_hl(0, conf.hl_group, { bg = conf.hl_bg })
+  elseif conf.hl_group == "HelmIndentHint" then
+    vim.api.nvim_set_hl(0, "HelmIndentHint", { default = true, link = "CursorLine" })
+  end
+
   local bufnr = vim.api.nvim_get_current_buf()
   local parser = vim.treesitter.get_parser(bufnr, vim.bo.filetype, { error = false })
   if parser == nil then
@@ -89,7 +114,9 @@ local add_indent_hints = function()
           end
 
           local start_row = node:range()
-          show_hint(start_row + (new_line_indent and 1 or 0), indent_count)
+          local on_same_line = M.config and M.config.hint_on_same_line
+          local row_offset = (new_line_indent and not on_same_line) and 1 or 0
+          show_hint(start_row + row_offset, indent_count)
         elseif name == "func" then
           new_line_indent = node_content == "nindent"
         end
